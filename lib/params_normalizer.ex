@@ -85,6 +85,7 @@ defmodule ParamsNormalizer do
   Handles the casting of a string to an integer and will return an error tuple
   if the process fails.
   """
+  @spec string_to_integer(any()) :: {:ok, integer()} | {:error, any()}
   def string_to_integer(val) when is_integer(val), do: {:ok, val}
   def string_to_integer(val) do
     {:ok, String.to_integer(val)}
