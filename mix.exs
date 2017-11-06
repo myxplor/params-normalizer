@@ -8,8 +8,10 @@ defmodule ParamsNormalizer.Mixfile do
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
+      aliases: aliases(),
       name: "Params Normalizer",
-      description: "Provides interface for normalizing params"
+      description: "Provides interface for normalizing params",
+      dialyzer: [flags: [:error_handling]]
     ]
   end
 
@@ -21,6 +23,14 @@ defmodule ParamsNormalizer.Mixfile do
   end
 
   defp deps do
-    []
+    [
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
+    ]
   end
+
+  defp aliases do
+    [
+      "dialyzer": ["dialyzer -Wno_return"]
+    ]
+end
 end
