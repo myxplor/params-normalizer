@@ -36,6 +36,16 @@ defmodule ParamsNormalizerTest do
     end
   end
 
+  describe "validate_and_normalize_params/2 when fields to process is an error" do
+    setup [:basic_params]
+
+    test "returns a list of errors", %{params: params} do
+      assert {:error, :invalid_params, %{"data.attributes.id" => "missing or invalid"}} ==
+        validate_and_normalize_params(params, {:error, [["data", "attributes", "id"]]})
+    end
+  end
+
+
   describe "string_to_integer/1 when input is an int" do
     test "returns the passed in int" do
       assert {:ok, 3} == string_to_integer(3)

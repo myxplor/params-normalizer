@@ -2,6 +2,7 @@ defmodule ParamsNormalizer do
   @moduledoc """
   Handles normalization of params from controllers/channels
   """
+  @base_map %{errors: %{}}
 
   @doc """
   Takes in a list of maps.
@@ -64,20 +65,23 @@ defmodule ParamsNormalizer do
     {:error, :invalid_params, %{"data.attributes.id" => "can't be cast to integer"}}
   ```
   """
+  def validate_and_normalize_params(_params_map, {:error, fields}) do
+    fields
+    |> Enum.reduce(@base_map, &handle_error/2)
+    |> check_for_errors()
+  end
   def validate_and_normalize_params(params_map, field_validations) do
     process_field = fn(%{path: params_path, process: process_param_func}, acc) ->
       value = get_in(params_map, params_path)
 
       case process_param_func.(value) do
         {:ok, processed_value} -> put_in(acc, params_path, processed_value)
-        {:error, error} ->
-          path_string = Enum.join(params_path, ".")
-          %{acc | errors: Map.put(acc[:errors], path_string, error)}
+        {:error, error} -> handle_error(params_path, acc, error)
       end
     end
 
     field_validations
-    |> Enum.reduce(Map.merge(params_map, %{errors: %{}}), process_field)
+    |> Enum.reduce(Map.merge(params_map, @base_map), process_field)
     |> check_for_errors()
   end
 
@@ -100,4 +104,9 @@ defmodule ParamsNormalizer do
   # --------------------------------
   defp check_for_errors(%{errors: errors} = params) when errors == %{}, do: {:ok, Map.delete(params, :errors)}
   defp check_for_errors(%{errors: errors}), do: {:error, :invalid_params, errors}
+
+  defp handle_error(params_path, acc, error \\ "missing or invalid") do
+    path_string = Enum.join(params_path, ".")
+    %{acc | errors: Map.put(acc[:errors], path_string, error)}
+  end
 end
