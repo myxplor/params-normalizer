@@ -30,7 +30,7 @@ defmodule ParamsNormalizer.Mixfile do
 
   defp aliases do
     [
-      "dialyzer": ["dialyzer -Wno_return"]
+      dialyzer: ["dialyzer -Wno_return"]
     ]
 end
 end
